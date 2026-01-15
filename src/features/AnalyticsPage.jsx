@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { format, subDays, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
+import { format, subDays, startOfMonth, endOfMonth, eachDayOfInterval, startOfYear, parseISO } from 'date-fns';
 import { getCurrentDate } from '../lib/dateUtils';
 import { getBadgeColor, getBadgeEmoji } from '../lib/badgeUtils';
 import analyticsRepository from '../db/analyticsRepository';
@@ -10,10 +10,10 @@ import useUserStore from '../store/useUserStore';
  */
 const AnalyticsPage = () => {
   const { streak } = useUserStore();
-  const [view, setView] = useState('weekly'); // 'weekly' | 'monthly' | 'yearly'
+  const [view, setView] = useState('weekly'); // 'weekly' | 'monthly' | 'quarterly' | 'yearly'
   const [summaries, setSummaries] = useState([]);
   const [badgeDistribution, setBadgeDistribution] = useState(null);
-  const [dayOfWeekStats, setDayOfWeekStats] = useState(null);
+  const [periodStats, setPeriodStats] = useState(null);
 
   useEffect(() => {
     const loadAnalytics = async () => {
@@ -26,11 +26,18 @@ const AnalyticsPage = () => {
           endDate = today;
           break;
         case 'monthly':
-          startDate = format(startOfMonth(new Date()), 'yyyy-MM-dd');
-          endDate = format(endOfMonth(new Date()), 'yyyy-MM-dd');
+          // Get data for the entire current year to show all months
+          startDate = format(startOfYear(new Date()), 'yyyy-MM-dd');
+          endDate = today;
+          break;
+        case 'quarterly':
+          // Get data for the current year to show quarters
+          startDate = format(startOfYear(new Date()), 'yyyy-MM-dd');
+          endDate = today;
           break;
         case 'yearly':
-          startDate = format(new Date(new Date().getFullYear(), 0, 1), 'yyyy-MM-dd');
+          // Get data from last 5 years
+          startDate = format(new Date(new Date().getFullYear() - 4, 0, 1), 'yyyy-MM-dd');
           endDate = today;
           break;
         default:
@@ -45,8 +52,25 @@ const AnalyticsPage = () => {
       const distribution = await analyticsRepository.getRealTimeBadgeDistribution(startDate, endDate);
       setBadgeDistribution(distribution);
 
-      const dayStats = await analyticsRepository.getRealTimeDayOfWeekAnalysis(startDate, endDate);
-      setDayOfWeekStats(dayStats);
+      // Get period-specific stats based on view
+      let periodStats;
+      switch (view) {
+        case 'weekly':
+          periodStats = await analyticsRepository.getRealTimeDayOfWeekAnalysis(startDate, endDate);
+          break;
+        case 'monthly':
+          periodStats = await analyticsRepository.getRealTimeMonthAnalysis(startDate, endDate);
+          break;
+        case 'quarterly':
+          periodStats = await analyticsRepository.getRealTimeQuarterAnalysis(startDate, endDate);
+          break;
+        case 'yearly':
+          periodStats = await analyticsRepository.getRealTimeYearAnalysis(startDate, endDate);
+          break;
+        default:
+          periodStats = await analyticsRepository.getRealTimeDayOfWeekAnalysis(startDate, endDate);
+      }
+      setPeriodStats(periodStats);
     };
 
     loadAnalytics();
@@ -60,7 +84,7 @@ const AnalyticsPage = () => {
     <div className="space-y-8">
       {/* View Selector */}
       <div className="flex space-x-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl shadow-md p-3 border border-gray-200">
-        {['weekly', 'monthly', 'yearly'].map((v) => (
+        {['weekly', 'monthly', 'quarterly', 'yearly'].map((v) => (
           <button
             key={v}
             onClick={() => setView(v)}
@@ -140,17 +164,22 @@ const AnalyticsPage = () => {
         </div>
       )}
 
-      {/* Day of Week Analysis */}
-      {dayOfWeekStats && (
+      {/* Period Analysis */}
+      {periodStats && (
         <div className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-semibold mb-4">Day of Week Performance</h3>
+          <h3 className="text-lg font-semibold mb-4">
+            {view === 'weekly' && 'Day of Week Performance'}
+            {view === 'monthly' && 'Monthly Performance'}
+            {view === 'quarterly' && 'Quarterly Performance'}
+            {view === 'yearly' && 'Yearly Performance'}
+          </h3>
           <div className="space-y-3">
-            {Object.entries(dayOfWeekStats).map(([day, stats]) => {
+            {Object.entries(periodStats).map(([period, stats]) => {
               const total = stats.gold + stats.silver + stats.bronze + stats.shameful;
               return (
-                <div key={day}>
+                <div key={period}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium text-sm">{day}</span>
+                    <span className="font-medium text-sm">{period}</span>
                     <span className="text-xs text-gray-500">
                       {stats.gold}🥇 {stats.silver}🥈 {stats.bronze}🥉
                     </span>

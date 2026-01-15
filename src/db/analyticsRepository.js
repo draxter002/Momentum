@@ -358,6 +358,96 @@ export const analyticsRepository = {
     
     return dayStats;
   },
+
+  /**
+   * Get real-time month analysis from occurrences
+   */
+  async getRealTimeMonthAnalysis(startDate, endDate) {
+    const summaries = await this.getRealTimeAnalytics(startDate, endDate);
+    
+    const monthStats = {
+      January: { gold: 0, silver: 0, bronze: 0, shameful: 0 },
+      February: { gold: 0, silver: 0, bronze: 0, shameful: 0 },
+      March: { gold: 0, silver: 0, bronze: 0, shameful: 0 },
+      April: { gold: 0, silver: 0, bronze: 0, shameful: 0 },
+      May: { gold: 0, silver: 0, bronze: 0, shameful: 0 },
+      June: { gold: 0, silver: 0, bronze: 0, shameful: 0 },
+      July: { gold: 0, silver: 0, bronze: 0, shameful: 0 },
+      August: { gold: 0, silver: 0, bronze: 0, shameful: 0 },
+      September: { gold: 0, silver: 0, bronze: 0, shameful: 0 },
+      October: { gold: 0, silver: 0, bronze: 0, shameful: 0 },
+      November: { gold: 0, silver: 0, bronze: 0, shameful: 0 },
+      December: { gold: 0, silver: 0, bronze: 0, shameful: 0 },
+    };
+    
+    summaries.forEach(s => {
+      const monthName = format(parseISO(s.date), 'MMMM');
+      if (monthStats[monthName]) {
+        monthStats[monthName][s.badgeTier]++;
+      }
+    });
+    
+    return monthStats;
+  },
+
+  /**
+   * Get real-time quarter analysis from occurrences
+   */
+  async getRealTimeQuarterAnalysis(startDate, endDate) {
+    const summaries = await this.getRealTimeAnalytics(startDate, endDate);
+    
+    const quarterStats = {
+      'Q1 (Jan-Mar)': { gold: 0, silver: 0, bronze: 0, shameful: 0 },
+      'Q2 (Apr-Jun)': { gold: 0, silver: 0, bronze: 0, shameful: 0 },
+      'Q3 (Jul-Sep)': { gold: 0, silver: 0, bronze: 0, shameful: 0 },
+      'Q4 (Oct-Dec)': { gold: 0, silver: 0, bronze: 0, shameful: 0 },
+    };
+    
+    summaries.forEach(s => {
+      const month = parseISO(s.date).getMonth() + 1; // 1-12
+      let quarter;
+      if (month <= 3) quarter = 'Q1 (Jan-Mar)';
+      else if (month <= 6) quarter = 'Q2 (Apr-Jun)';
+      else if (month <= 9) quarter = 'Q3 (Jul-Sep)';
+      else quarter = 'Q4 (Oct-Dec)';
+      
+      if (quarterStats[quarter]) {
+        quarterStats[quarter][s.badgeTier]++;
+      }
+    });
+    
+    return quarterStats;
+  },
+
+  /**
+   * Get real-time year analysis from occurrences
+   */
+  async getRealTimeYearAnalysis(startDate, endDate) {
+    const summaries = await this.getRealTimeAnalytics(startDate, endDate);
+    
+    // Collect all years present in the data
+    const years = new Set();
+    summaries.forEach(s => {
+      const year = format(parseISO(s.date), 'yyyy');
+      years.add(year);
+    });
+    
+    // Initialize stats for each year
+    const yearStats = {};
+    Array.from(years).sort().forEach(year => {
+      yearStats[year] = { gold: 0, silver: 0, bronze: 0, shameful: 0 };
+    });
+    
+    // Populate stats
+    summaries.forEach(s => {
+      const year = format(parseISO(s.date), 'yyyy');
+      if (yearStats[year]) {
+        yearStats[year][s.badgeTier]++;
+      }
+    });
+    
+    return yearStats;
+  },
 };
 
 export default analyticsRepository;
