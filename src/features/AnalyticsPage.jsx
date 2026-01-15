@@ -366,12 +366,12 @@ const AnalyticsPage = () => {
   return (
     <div className="space-y-8">
       {/* View Selector */}
-      <div className="flex space-x-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl shadow-md p-3 border border-gray-200">
+      <div className="flex space-x-2 md:space-x-3 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl shadow-md p-2 md:p-3 border border-gray-200">
         {['weekly', 'monthly', 'quarterly', 'yearly'].map((v) => (
           <button
             key={v}
             onClick={() => handleViewChange(v)}
-            className={`flex-1 py-3 px-6 rounded-lg font-bold text-base transition-all transform hover:scale-105 capitalize ${
+            className={`flex-1 py-2 md:py-3 px-3 md:px-6 rounded-lg font-bold text-sm md:text-base transition-all transform hover:scale-105 capitalize ${
               view === v
                 ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
                 : 'bg-white text-gray-600 hover:bg-gray-100 shadow-sm'
@@ -384,28 +384,28 @@ const AnalyticsPage = () => {
 
       {/* Week Navigation Controls (only for weekly view) */}
       {view === 'weekly' && (
-        <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
-          <div className="flex items-center justify-between gap-4">
+        <div className="bg-white rounded-lg shadow-md p-3 md:p-4 border border-gray-200">
+          <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 md:gap-4">
             <button
               onClick={handlePreviousWeek}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+              className="px-3 md:px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 text-sm md:text-base"
             >
               <span>←</span> Previous Week
             </button>
             
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-4">
               <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-700">Jump to date:</label>
+                <label className="text-xs md:text-sm font-medium text-gray-700 whitespace-nowrap">Jump to date:</label>
                 <input
                   type="date"
                   onChange={handleDateChange}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 md:flex-initial px-2 md:px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               
               <button
                 onClick={handleCurrentWeek}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                className="px-3 md:px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm md:text-base"
               >
                 Current Week
               </button>
@@ -413,14 +413,14 @@ const AnalyticsPage = () => {
             
             <button
               onClick={handleNextWeek}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+              className="px-3 md:px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 text-sm md:text-base"
             >
               Next Week <span>→</span>
             </button>
           </div>
           
           {selectedWeekStart && (
-            <div className="mt-3 text-center text-sm text-gray-600">
+            <div className="mt-3 text-center text-xs md:text-sm text-gray-600">
               Viewing week: {format(new Date(selectedWeekStart), 'MMM d, yyyy')} - {format(addDays(new Date(selectedWeekStart), 6), 'MMM d, yyyy')}
             </div>
           )}
@@ -428,42 +428,42 @@ const AnalyticsPage = () => {
       )}
 
       {/* Streak Card */}
-      <div className="bg-gradient-to-br from-orange-400 via-red-400 to-red-500 rounded-xl shadow-lg p-6 text-white transition-shadow hover:shadow-xl">
+      <div className="bg-gradient-to-br from-orange-400 via-red-400 to-red-500 rounded-xl shadow-lg p-4 md:p-6 text-white transition-shadow hover:shadow-xl">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
-              <span className="text-3xl animate-pulse">🔥</span>
+            <h3 className="text-lg md:text-xl font-bold mb-2 flex items-center gap-2">
+              <span className="text-2xl md:text-3xl animate-pulse">🔥</span>
               Gold Streak
             </h3>
-            <p className="text-5xl font-black drop-shadow-lg">{streak?.currentStreak || 0}</p>
-            <p className="text-sm mt-2 opacity-95 font-medium">
+            <p className="text-4xl md:text-5xl font-black drop-shadow-lg">{streak?.currentStreak || 0}</p>
+            <p className="text-xs md:text-sm mt-2 opacity-95 font-medium">
               Longest: {streak?.longestStreak || 0} days
             </p>
           </div>
           <div className="text-right">
-            <p className="text-sm opacity-95 font-medium mb-1">Freeze Tokens</p>
-            <p className="text-4xl drop-shadow-lg">❄️ × {streak?.freezeTokens || 0}</p>
+            <p className="text-xs md:text-sm opacity-95 font-medium mb-1">Freeze Tokens</p>
+            <p className="text-3xl md:text-4xl drop-shadow-lg">❄️ × {streak?.freezeTokens || 0}</p>
           </div>
         </div>
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-lg p-6 border-2 border-blue-200 hover:shadow-2xl transition-all transform hover:-translate-y-1">
-          <h4 className="text-sm font-bold text-blue-700 mb-3 uppercase tracking-wide">Average Completion</h4>
-          <p className="text-5xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-lg p-4 md:p-6 border-2 border-blue-200 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+          <h4 className="text-xs md:text-sm font-bold text-blue-700 mb-2 md:mb-3 uppercase tracking-wide">Average Completion</h4>
+          <p className="text-4xl md:text-5xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
             {Math.round(averageCompletion)}%
           </p>
         </div>
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-lg p-6 border-2 border-gray-300 hover:shadow-2xl transition-all transform hover:-translate-y-1">
-          <h4 className="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide">Total Tasks</h4>
-          <p className="text-5xl font-black text-gray-800">
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-lg p-4 md:p-6 border-2 border-gray-300 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+          <h4 className="text-xs md:text-sm font-bold text-gray-700 mb-2 md:mb-3 uppercase tracking-wide">Total Tasks</h4>
+          <p className="text-4xl md:text-5xl font-black text-gray-800">
             {summaries.reduce((sum, s) => sum + s.totalTasks, 0)}
           </p>
         </div>
-        <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl shadow-lg p-6 border-2 border-green-300 hover:shadow-2xl transition-all transform hover:-translate-y-1">
-          <h4 className="text-sm font-bold text-green-700 mb-3 uppercase tracking-wide">Completed Tasks</h4>
-          <p className="text-5xl font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+        <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl shadow-lg p-4 md:p-6 border-2 border-green-300 hover:shadow-2xl transition-all transform hover:-translate-y-1">
+          <h4 className="text-xs md:text-sm font-bold text-green-700 mb-2 md:mb-3 uppercase tracking-wide">Completed Tasks</h4>
+          <p className="text-4xl md:text-5xl font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
             {summaries.reduce((sum, s) => sum + s.completedTasks, 0)}
           </p>
         </div>
