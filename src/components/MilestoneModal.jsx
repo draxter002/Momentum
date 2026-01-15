@@ -34,7 +34,7 @@ export default function MilestoneModal({ isOpen, onClose, userId, currentStreak 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-gray-700">
+      <div className="bg-gray-900 rounded-xl shadow-2xl w-full h-full max-w-full max-h-full overflow-hidden border border-gray-700">
         <div className="p-6 border-b border-gray-700 flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-white mb-1">Gold Streak Milestones</h2>
@@ -52,7 +52,7 @@ export default function MilestoneModal({ isOpen, onClose, userId, currentStreak 
           </button>
         </div>
 
-        <div className="overflow-y-auto p-6" style={{ maxHeight: 'calc(90vh - 100px)' }}>
+        <div className="overflow-y-auto p-6" style={{ maxHeight: 'calc(100vh - 150px)' }}>
           {['early', 'intermediate', 'advanced', 'legendary'].map((tier) => {
             const tierMilestones = getMilestonesByTier(tier);
             if (tierMilestones.length === 0) return null;
