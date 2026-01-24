@@ -114,9 +114,12 @@ const AnalyticsPage = () => {
     }
   }, [summaries]);
 
-  const averageCompletion = summaries.length > 0
-    ? summaries.reduce((sum, s) => sum + s.completionRate, 0) / summaries.length
-    : 0;
+  // Calculate average completion properly based on total completed / total tasks
+  const averageCompletion = (() => {
+    const totalTasks = summaries.reduce((sum, s) => sum + s.totalTasks, 0);
+    const totalCompleted = summaries.reduce((sum, s) => sum + s.completedTasks, 0);
+    return totalTasks > 0 ? (totalCompleted / totalTasks) * 100 : 0;
+  })();
 
   const handleMonthClick = async (monthName) => {
     // Get month number from name
@@ -205,10 +208,10 @@ const AnalyticsPage = () => {
     const data = await analyticsRepository.getRealTimeAnalytics(startDate, endDate);
     const distribution = await analyticsRepository.getRealTimeBadgeDistribution(startDate, endDate);
     
-    // Calculate average daily completion
-    const avgCompletion = data.length > 0
-      ? data.reduce((sum, d) => sum + d.completionRate, 0) / data.length
-      : 0;
+    // Calculate average completion properly: total completed / total tasks
+    const totalTasks = data.reduce((sum, d) => sum + d.totalTasks, 0);
+    const totalCompleted = data.reduce((sum, d) => sum + d.completedTasks, 0);
+    const avgCompletion = totalTasks > 0 ? (totalCompleted / totalTasks) * 100 : 0;
     
     // Group data by month
     const monthlyBreakdown = {};
@@ -224,7 +227,8 @@ const AnalyticsPage = () => {
         shameful: 0,
         totalDays: 0,
         avgCompletion: 0,
-        completionSum: 0
+        totalTasks: 0,
+        completedTasks: 0
       });
     }
     
@@ -234,15 +238,16 @@ const AnalyticsPage = () => {
       if (monthlyBreakdown[monthName]) {
         monthlyBreakdown[monthName][d.badgeTier]++;
         monthlyBreakdown[monthName].totalDays++;
-        monthlyBreakdown[monthName].completionSum += d.completionRate;
+        monthlyBreakdown[monthName].totalTasks = (monthlyBreakdown[monthName].totalTasks || 0) + d.totalTasks;
+        monthlyBreakdown[monthName].completedTasks = (monthlyBreakdown[monthName].completedTasks || 0) + d.completedTasks;
       }
     });
     
-    // Calculate average completion per month
+    // Calculate average completion per month: total completed / total tasks
     Object.keys(monthlyBreakdown).forEach(month => {
       const monthData = monthlyBreakdown[month];
-      if (monthData.totalDays > 0) {
-        monthData.avgCompletion = monthData.completionSum / monthData.totalDays;
+      if (monthData.totalTasks > 0) {
+        monthData.avgCompletion = (monthData.completedTasks / monthData.totalTasks) * 100;
       }
     });
     
@@ -721,7 +726,7 @@ const AnalyticsPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 border-2 border-purple-300">
                 <h4 className="text-sm font-bold text-purple-700 mb-2 uppercase tracking-wide">
-                  Avg Daily Completion
+                  Avg Completion
                 </h4>
                 <p className="text-4xl font-black text-purple-700">
                   {Math.round(quarterDetailData.avgCompletion)}%
